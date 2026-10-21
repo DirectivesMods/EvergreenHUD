@@ -41,12 +41,19 @@ class PingHud : CachedTextHud(
         //? if > 1.8.9 {
         private const val MS_PER_TICK = 50
 
+        private const val SCRIPT_SAMPLE_INTERVAL_TICKS = 10
+
         @JvmStatic
         fun sampleIntervalTicks(): Int {
             var interval = -1
             for (hud in HudManager.activeInstances) {
-                if (hud !is PingHud || hud.hidden || !hud.shouldShow()) continue
-                if (interval == -1 || hud.sampleIntervalTicks < interval) interval = hud.sampleIntervalTicks
+                if (hud.hidden) continue
+                val ticks = when {
+                    hud is PingHud && hud.shouldShow() -> hud.sampleIntervalTicks
+                    hud is ScriptHud && hud.uses("ping") -> SCRIPT_SAMPLE_INTERVAL_TICKS
+                    else -> continue
+                }
+                if (interval == -1 || ticks < interval) interval = ticks
             }
             return interval
         }

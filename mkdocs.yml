@@ -1,0 +1,51 @@
+site_name: EvergreenHUD
+site_description: How to write Custom Script HUD elements for EvergreenHUD
+site_url: https://directivesmods.github.io/EvergreenHUD/
+repo_url: https://github.com/DirectivesMods/EvergreenHUD
+repo_name: DirectivesMods/EvergreenHUD
+edit_uri: edit/oneconfig/docs/
+
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.footer
+    - content.code.copy
+    - search.highlight
+    - toc.follow
+
+extra_css:
+  - assets/extra.css
+
+markdown_extensions:
+  - tables
+  - attr_list
+  - github-callouts
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+
+nav:
+  - Custom Script: index.md
+  - Text and values: text-and-values.md
+  - Choices and loops: logic.md
+  - Colors, icons and layout: styling.md
+  - Examples: examples.md
+  - Reference: reference.md

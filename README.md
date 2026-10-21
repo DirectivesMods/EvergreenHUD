@@ -14,7 +14,7 @@ EvergreenHUD adds around 40 HUD elements to the OneConfig HUD editor. Place, sca
 - World: Position, Facing, Direction, Speed, Biome, Block Above, Day, In Game Time, Entity Counter
 - Performance: FPS, Ping, TPS, Memory, Server Address, Play Time, Resource Pack
 - Clocks: Clock, Digital Clock
-- Custom: Custom Text, Custom Image, Shape
+- Custom: Custom Script, Custom Text, Custom Image, Shape
 - Online: Weather, Social Media Stats
 - Battery (Windows laptops) and Shaders (with Iris)
 
@@ -26,6 +26,7 @@ EvergreenHUD adds around 40 HUD elements to the OneConfig HUD editor. Place, sca
 - FPS with average, median and percentile values
 - Combo and Reach for your last hits
 - A compass strip that scrolls as you turn
+- Custom Script, for building your own elements out of text, colors, sizes, icons and live values
 
 ![Moving and scaling](.github/images/hud-editor.gif)
 
@@ -34,6 +35,32 @@ EvergreenHUD adds around 40 HUD elements to the OneConfig HUD editor. Place, sca
 Font, colors, background, corner radius, shadow and padding can be set for every element at once from the EvergreenHUD settings page.
 
 ![Settings](.github/images/settings.gif)
+
+### Custom Script
+
+Build your own elements out of text, colors, sizes, icons and live values. Anything in `{braces}` is filled in as you play, and `&` codes add color.
+
+![Custom Script elements in game](docs/assets/hero.png)
+
+```
+{for e in effects}
+{e.icon(2)} {e.color}&l{e.name}{if e.level > 1} {e.level | roman}{end}
+{e.duration <= 10 ? "&c" : "&f"}{e.time}
+{end}
+```
+
+<img src="docs/assets/examples/preset-potions.png" alt="Potion effects">
+
+Presets for coordinates, potion effects, player stats, armor, Bed Wars resources, PvP and more get you started:
+
+<p>
+  <img src="docs/assets/examples/preset-coordinates.png" alt="Coordinates">
+  <img src="docs/assets/examples/preset-stats.png" alt="Player stats">
+  <img src="docs/assets/examples/preset-armor.png" alt="Armor">
+  <img src="docs/assets/examples/preset-bedwars.png" alt="Bed Wars resources">
+</p>
+
+**[Read the Custom Script docs](https://directivesmods.github.io/EvergreenHUD/)** for every color, value and function, with examples you can copy. They're also in the [`docs`](docs/index.md) folder.
 
 ## Compatibility
 

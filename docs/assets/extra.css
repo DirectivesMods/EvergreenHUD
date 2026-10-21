@@ -1,0 +1,4 @@
+/* keep the pixel art HUD previews crisp when the page scales them */
+.md-typeset img {
+  image-rendering: pixelated;
+}

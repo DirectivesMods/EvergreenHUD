@@ -3,16 +3,18 @@ package org.polyfrost.evergreenhud.client.utils
 enum class Facing(
     val full: String,
     val abbreviated: String,
-    val bearing: Float
+    val bearing: Float,
+    /** The axes you are travelling towards, such as +X */
+    val axis: String,
 ) {
-    NORTH("North", "N", 0f),
-    NORTH_EAST("North East", "NE", 45f),
-    EAST("East", "E", 90f),
-    SOUTH_EAST("South East", "SE", 135f),
-    SOUTH("South", "S", 180f),
-    SOUTH_WEST("South West", "SW", 225f),
-    WEST("West", "W", 270f),
-    NORTH_WEST("North West", "NW", 315f);
+    NORTH("North", "N", 0f, "-Z"),
+    NORTH_EAST("North East", "NE", 45f, "+X -Z"),
+    EAST("East", "E", 90f, "+X"),
+    SOUTH_EAST("South East", "SE", 135f, "+X +Z"),
+    SOUTH("South", "S", 180f, "+Z"),
+    SOUTH_WEST("South West", "SW", 225f, "-X +Z"),
+    WEST("West", "W", 270f, "-X"),
+    NORTH_WEST("North West", "NW", 315f, "-X -Z");
 
     val isCardinal get() = bearing % 90f == 0f
 

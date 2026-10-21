@@ -12,6 +12,8 @@ import net.minecraft.client.KeyMapping
 //? if > 1.21.1
 import net.minecraft.util.profiling.Profiler
 import net.minecraft.world.entity.Entity
+//? if > 1.8.9
+import net.minecraft.world.phys.EntityHitResult
 import net.minecraft.world.phys.AABB
 import org.polyfrost.compose.render.PolyColor
 import org.polyfrost.oneconfig.utils.v1.dsl.mc
@@ -36,16 +38,32 @@ fun StringBuilder.replace(string: String, value: String): StringBuilder {
     return this
 }
 
-fun calculateReachDistanceToEntity(entity: Entity): Float {
+/**
+ * How far [entity] was from the player's eyes when they hit it, in full precision
+ *
+ * Measured to the exact point the crosshair landed on, which is where vanilla aimed the hit, or by casting a ray along
+ * the player's view when the crosshair isn't on [entity]
+ */
+fun calculateReachDistanceToEntity(entity: Entity): Double {
+    val player = mc.player ?: return 0.0
+    //? if > 1.8.9
+    val crosshair = (mc.hitResult as? EntityHitResult)?.takeIf { it.entity.uniqueEntityId == entity.uniqueEntityId }?.location
+    //? if = 1.8.9
+    //val crosshair = mc.crosshairTarget?.takeIf { it.entity?.uniqueEntityId == entity.uniqueEntityId }?.facePos
+    if (crosshair != null) return player.getEyePosition(1.0f).distanceTo(crosshair)
+    return raycastReachDistance(entity)
+}
+
+private fun raycastReachDistance(entity: Entity): Double {
     //? if > 1.21.1
     val profiler = Profiler.get()
     //? if <= 1.21.1
     //val profiler = mc.profiler
-    val player = mc.player ?: return 0f
-    if (!player.isAlive) return 0f
+    val player = mc.player ?: return 0.0
+    if (!player.isAlive) return 0.0
     profiler.push("evergreenhud_reach_distance_calculation")
 
-    var result = 0f
+    var result = 0.0
     val collisionBox = entity.accurateCollisionBox
     val eyePos = player.getEyePosition(1.0f)
     val lookPos = player.getViewVector(1.0f)
@@ -53,7 +71,7 @@ fun calculateReachDistanceToEntity(entity: Entity): Float {
     //~ if = 1.8.9 '.orElse(null)' -> '?.facePos'
     val hit = collisionBox.clip(eyePos, adjustedPos).orElse(null)
     if (hit != null) {
-        result = eyePos.distanceTo(hit).toFloat()
+        result = eyePos.distanceTo(hit)
     }
     profiler.pop()
     return result

@@ -9,6 +9,9 @@ import org.polyfrost.oneconfig.api.event.v1.eventHandler
 import org.polyfrost.oneconfig.utils.v1.dsl.mc
 import kotlin.time.Duration.Companion.seconds
 
+/** A double holds about 16 significant digits, so a distance of a few blocks has 15 trustworthy decimals */
+private const val MAX_ACCURACY = 15F
+
 class ReachHud : GenericNumberHud(
     title = "Reach",
     category = Category.COMBAT,
@@ -29,6 +32,9 @@ class ReachHud : GenericNumberHud(
 
     private var lastTime = 0L
 
+    /** The last reach at full precision, since the number this element keeps is only a float */
+    private var exact = 0.0
+
     private val hideAfterMillis get() = (hideAfter * 1000f).toLong()
 
     override fun setup() {
@@ -36,19 +42,21 @@ class ReachHud : GenericNumberHud(
         eventHandler { event: ClientDamageEntityEvent ->
             if (event.attacker == mc.player) {
                 val reach = calculateReachDistanceToEntity(event.target)
-                if (reach == 0f) {
+                if (reach == 0.0) {
                     return@eventHandler false
                 }
 
-                this.value = reach
+                this.exact = reach
+                this.value = reach.toFloat()
                 this.lastTime = System.currentTimeMillis()
-                updateWithNumber(reach)
+                updateWithNumber(value)
             }
 
             return@eventHandler false
         }
 
         if (isReal) {
+            getProperty("accuracy").addMetadata("max", MAX_ACCURACY)
             updateWhenChanged("noHitMessage")
             addCallback("hideAfter") {
                 lastTime = System.currentTimeMillis()
@@ -62,7 +70,7 @@ class ReachHud : GenericNumberHud(
             return noHitMessage
         }
 
-        return super.getText()
+        return format(exact)
     }
 
     override fun update(): Boolean {

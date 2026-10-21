@@ -2,14 +2,8 @@ package org.polyfrost.evergreenhud.client.hud
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-//? if > 1.8.9 {
+//? if > 1.8.9
 import net.minecraft.core.registries.BuiltInRegistries
-//? if < 1.21.11
-//import net.minecraft.resources.ResourceLocation
-//? if >= 1.21.11
-import net.minecraft.resources.Identifier as ResourceLocation
-//?} else
-//import net.minecraft.resource.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -38,6 +32,7 @@ import org.polyfrost.evergreenhud.client.hud.item.potionIdOf
 import org.polyfrost.evergreenhud.client.hud.item.potionStack
 import org.polyfrost.evergreenhud.client.hud.item.potionVariant
 import org.polyfrost.evergreenhud.client.hud.item.potionVariants
+import org.polyfrost.evergreenhud.client.hud.item.resolveItem
 import org.polyfrost.evergreenhud.client.hud.item.whenItemsReady
 import org.polyfrost.oneconfig.api.config.v1.annotations.Button
 import org.polyfrost.oneconfig.api.config.v1.annotations.Dropdown
@@ -167,26 +162,9 @@ class ItemCounterHud : Hud(
         val query = item.firstOrNull()
         if (query != resolvedQuery) {
             resolvedQuery = query
-            resolved = query?.let(::resolve)
+            resolved = query?.let(::resolveItem)
         }
         return resolved
-    }
-
-    private fun resolve(query: String): Item? {
-        val trimmed = query.trim()
-        if (trimmed.isEmpty()) return null
-
-        //? if > 1.8.9 {
-        val id = ResourceLocation.tryParse(
-            if (trimmed.contains(':')) trimmed.lowercase() else "minecraft:${trimmed.lowercase().replace(' ', '_')}"
-        ) ?: return null
-        return BuiltInRegistries.ITEM.getOptional(id).orElse(null)?.takeIf { it != Items.AIR }
-        //?} else {
-        /*val id = Identifier(
-            if (trimmed.contains(':')) trimmed.lowercase() else "minecraft:${trimmed.lowercase().replace(' ', '_')}"
-        )
-        return Item.REGISTRY[id]
-        *///?}
     }
 
     private fun count(target: Item): Int {

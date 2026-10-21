@@ -107,7 +107,7 @@ private val HEAD_PAINT = Paint()
 }
 *///?}
 
-private object PlayerHeadTexture {
+internal object PlayerHeadTexture {
     private val FALLBACK_UUID = UUID(0L, 0L)
 
     private const val FACE = 8

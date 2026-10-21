@@ -56,7 +56,7 @@ class FacingHud : CachedTextHud(
                 append(bearing.roundToInt() % 360).append('°')
 
                 if (showAxis) {
-                    append(' ').append(axisOf(facing))
+                    append(' ').append(facing.axis)
                 }
             }
         }
@@ -65,7 +65,7 @@ class FacingHud : CachedTextHud(
             append(if (style == 1) facing.abbreviated else facing.full)
 
             if (showAxis) {
-                append(' ').append(axisOf(facing))
+                append(' ').append(facing.axis)
             }
 
             if (showBearing) {
@@ -75,15 +75,4 @@ class FacingHud : CachedTextHud(
     }
 
     override fun updateFrequency(): Long = 50.milliseconds.inWholeNanoseconds
-
-    private fun axisOf(facing: Facing): String = when (facing) {
-        Facing.NORTH -> "-Z"
-        Facing.SOUTH -> "+Z"
-        Facing.EAST -> "+X"
-        Facing.WEST -> "-X"
-        Facing.NORTH_EAST -> "+X -Z"
-        Facing.SOUTH_EAST -> "+X +Z"
-        Facing.SOUTH_WEST -> "-X +Z"
-        Facing.NORTH_WEST -> "-X -Z"
-    }
 }

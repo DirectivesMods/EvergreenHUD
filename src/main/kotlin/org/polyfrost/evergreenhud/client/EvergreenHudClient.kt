@@ -24,8 +24,10 @@ import org.polyfrost.evergreenhud.client.hud.clock.DigitalClockHud
 import org.polyfrost.evergreenhud.client.hud.direction.DirectionHud
 import org.polyfrost.evergreenhud.client.hud.keystrokes.KeystrokesHud
 import org.polyfrost.evergreenhud.client.hud.mouse.MouseStrokesHud
+import org.polyfrost.evergreenhud.client.hud.potion.EffectIcons
 import org.polyfrost.evergreenhud.client.hud.potion.PotionEffectsHud
 import org.polyfrost.evergreenhud.client.hud.shape.ShapeHud
+import org.polyfrost.evergreenhud.client.utils.CombatTracker
 import org.polyfrost.evergreenhud.client.utils.FrameTimeHelper
 import org.polyfrost.evergreenhud.client.utils.shaders.ShaderMod
 import org.polyfrost.evergreenhud.client.utils.SaturationTracker
@@ -67,6 +69,12 @@ object EvergreenHudClient : ClientModInitializer {
         VanillaTextures.initialize()
         EnderChestTracker.initialize()
         SaturationTracker.initialize()
+        EffectIcons.initialize()
+        CombatTracker.initialize()
+        //? if = 1.8.9 {
+        /*DevHudScreenshots.initialize()
+        DevDocShots.initialize()
+        *///?}
         GlobalConfig.preload()
 
         val huds = arrayOf(
@@ -80,7 +88,7 @@ object EvergreenHudClient : ClientModInitializer {
             LoreHud(), MemoryHud(), MouseStrokesHud(),
             PingHud(), PlaceCountHud(), PlayerHeadHud(), PlayerPreviewHud(),
             PlayTimeHud(), PositionHud(), PotionEffectsHud(), ReachHud(),
-            ResourcePackHud(), SaturationHud(), ServerAddressHud(),
+            ResourcePackHud(), SaturationHud(), ScriptHud(), ServerAddressHud(),
             ShapeHud(), SocialStatsHud(), SpeedHud(), TpsHud(), WeatherHud(),
         )
 
