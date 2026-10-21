@@ -57,6 +57,14 @@ Icons are one line tall. Make them taller with a number, like `{head(2)}` or `{e
 
 ![A tall icon with text beside it](assets/examples/tall-icon.png)
 
+Add `| bar` to an item's icon to show its durability bar, the same one the hotbar shows. It only appears once the item has worn down, and works at any size, like `{helmet.icon(2) | bar}`:
+
+```
+{for piece in armor_items}
+{piece.icon | bar} {piece.durability}
+{end}
+```
+
 ## Columns
 
 `{tab}` lines text up in columns across lines:

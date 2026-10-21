@@ -389,6 +389,13 @@ object CoreFunctions {
         def("rainbow", 0, 1) { a -> Value.Color(0xFFFF5555.toInt(), chroma = true, chromaSpeed = a.number(0, 1.0).toFloat()) }
         def("size", 1) { a -> Value.Size(a.number(0).toFloat().coerceIn(MIN_SIZE, MAX_SIZE)) }
         put("scale", getValue("size"))
+        def("bar", 1) { a ->
+            when (val icon = a[0]) {
+                is Value.Icon -> icon.copy(bar = true)
+                Value.Null -> Value.Null
+                else -> fail("bar goes on an item's icon, like helmet.icon | bar")
+            }
+        }
 
         def("every", 2, stateful = true) { a -> a.hold(a.number(1)) { a[0] } }
         def("smooth", 1, 2, stateful = true) { a ->

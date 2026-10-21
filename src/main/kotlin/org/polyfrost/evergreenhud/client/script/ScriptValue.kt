@@ -26,8 +26,8 @@ sealed interface Value {
     /** Changes the size of whatever is written after it */
     data class Size(val scale: Float) : Value
 
-    /** [size] is how many lines tall the icon is */
-    data class Icon(val source: IconSource, val size: Float = 1f) : Value
+    /** [size] is how many lines tall the icon is, and [bar] shows an item's durability bar on it */
+    data class Icon(val source: IconSource, val size: Float = 1f, val bar: Boolean = false) : Value
 
     data class Items(val items: List<Value>) : Value
 

@@ -2,6 +2,8 @@ package org.polyfrost.evergreenhud.client.script
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import kotlin.math.floor
+import net.minecraft.world.item.ItemStack
 import org.jetbrains.skia.Font as SkiaFont
 import org.jetbrains.skia.Paint
 import org.jetbrains.skia.Rect
@@ -30,6 +32,16 @@ private const val MC_ICON = 8f
 private const val MC_UNDERLINE = 8f
 private const val MC_STRIKETHROUGH = 3.5f
 
+/** Item textures are 16 pixels across */
+private const val ITEM_TEXTURE = 16f
+
+/** Where vanilla draws the durability bar on an item, in the item's own pixels */
+private const val BAR_X = 2f
+private const val BAR_Y = 13f
+private const val BAR_WIDTH = 13f
+
+private val BAR_BACKGROUND = PolyColor(0xFF000000.toInt())
+
 private val iconPaint = Paint()
 
 private class PlacedText(
@@ -42,7 +54,7 @@ private class PlacedText(
     val font: SkiaFont?,
 )
 
-private class PlacedIcon(val source: IconSource, val x: Float, val y: Float, val size: Float)
+private class PlacedIcon(val source: IconSource, val x: Float, val y: Float, val size: Float, val bar: Boolean)
 
 private class ScriptLayout(
     val width: Float,
@@ -55,9 +67,11 @@ private class Measured(val segment: ScriptSegment, val width: Float, val ascent:
 
 private class LineMetrics(val cells: List<List<Measured>>, val ascent: Float, val descent: Float)
 
+/** [guiScale] is Minecraft's GUI scale, which with the HUD's own scale sets how many screen pixels an item's pixels take */
 @Composable
-fun Hud.ScriptContent(output: ScriptOutput, lineGap: Float) {
+fun Hud.ScriptContent(output: ScriptOutput, lineGap: Float, guiScale: Float) {
     val layout = layout(output, lineGap * textScale)
+    val screenScale = guiScale * effectiveScale
     val padInsets = PolyInsets(padLeft, padTop, padRight, padBottom)
     val isStaticValid = staticWidth && staticW > 0f && staticH > 0f
     val bgModifier = hudBackground()
@@ -72,14 +86,42 @@ fun Hud.ScriptContent(output: ScriptOutput, lineGap: Float) {
             for ((index, icon) in layout.icons.withIndex()) {
                 val source = icon.source as? ItemIconSource ?: continue
                 key(index) {
-                    val modifier = PolyModifier.absoluteAt(icon.x, icon.y)
+                    val size = crispItemSize(icon.size, screenScale)
+                    val inset = (icon.size - size) / 2f
+                    val modifier = PolyModifier.absoluteAt(icon.x + inset, icon.y + inset)
                     val stack = source.stack
-                    if (stack != null) PolyItemIcon(stack, icon.size, modifier, decorations = false)
-                    else PolyItemIcon(source.id, icon.size, modifier)
+                    if (stack != null) {
+                        PolyItemIcon(stack, size, modifier, decorations = false)
+                        if (icon.bar && stack.isBarVisible) DurabilityBar(stack, size, modifier)
+                    } else PolyItemIcon(source.id, size, modifier)
                 }
             }
         }
     }
+}
+
+/** The vanilla durability bar for [stack], over the bottom of its icon drawn [size] across, without the stack count */
+@Composable
+private fun DurabilityBar(stack: ItemStack, size: Float, modifier: PolyModifier) {
+    val pixel = size / ITEM_TEXTURE
+    val filled = stack.barWidth * pixel
+    val color = PolyColor(0xFF000000.toInt() or (stack.barColor and 0xFFFFFF))
+    PolyCanvas(modifier.size(size, size)) { x, y, _, _ ->
+        rect(x + BAR_X * pixel, y + BAR_Y * pixel, BAR_WIDTH * pixel, 2f * pixel, BAR_BACKGROUND)
+        rect(x + BAR_X * pixel, y + BAR_Y * pixel, filled, pixel, color)
+    }
+}
+
+/**
+ * The biggest size up to [slot] that draws every pixel of an item as the same whole number of screen pixels,
+ * so items next to or on top of each other line up pixel for pixel instead of some rows and columns coming out wider.
+ * Slots smaller than the texture itself are left as they are.
+ */
+private fun crispItemSize(slot: Float, screenScale: Float): Float {
+    val whole = floor(slot * screenScale / ITEM_TEXTURE + 1e-3f)
+    if (whole < 1f) return slot
+    // a hair under, so OneConfig rounding the item up to whole screen pixels can't add a pixel and stretch it again
+    return (whole * ITEM_TEXTURE - 1e-3f) / screenScale
 }
 
 private fun Hud.textAscent(scale: Float, font: SkiaFont?): Float = font?.let { -it.metrics.ascent } ?: (MC_ASCENT * scale)
@@ -196,7 +238,7 @@ private fun Hud.layout(output: ScriptOutput, gap: Float): ScriptLayout {
                     is ScriptSegment.Text -> texts.add(
                         PlacedText(measured.text, x, baseline, measured.width, textScale * segment.style.size, segment.style, measured.font)
                     )
-                    is ScriptSegment.Icon -> icons.add(PlacedIcon(segment.source, x, baseline - measured.ascent, measured.iconSize))
+                    is ScriptSegment.Icon -> icons.add(PlacedIcon(segment.source, x, baseline - measured.ascent, measured.iconSize, segment.bar))
                     ScriptSegment.Column -> {}
                 }
                 x += measured.width

@@ -69,7 +69,7 @@ Values: {x} {block.y} {health} {fps} {facing.short} {held.name}
 Math and formatting: {round(x, 1)} {health / 2} {name | upper} {fixed(reach, 2)}, or every digit with {reach | exact}
 Choices: {sprinting ? "&aRunning" : "&7Walking"} or {if health < 6}&cLow!{elif health < 12}&eOK{else}&aFull{end}
 Loops: {for e in effects}...{end}, where e has name, level, time, duration, color, icon and more. Inside a loop, loop.index, loop.first and loop.last are there too.
-Icons: {head} {e.icon} {held.icon} {item("emerald").icon}. Make them taller with {head(2)}, and text after a tall icon at the start of a line lines up beside it.
+Icons: {head} {e.icon} {held.icon} {item("emerald").icon}. Make them taller with {head(2)}, and text after a tall icon at the start of a line lines up beside it. Show an item's durability bar with {helmet.icon(2) | bar}.
 Size and color: {size(1.5)} {color("gold")} {gradient(health, 0, 20, "red", "green")} {rainbow()}
 Values refresh as often as their own element does, so {fps} changes once a second like the FPS element. Slow any number down with {ping | every(2)}, and make it count up or down to new numbers instead of jumping with {fps | smooth}.
 Columns: {tab} lines text up across lines.
@@ -82,5 +82,5 @@ Items: held, offhand, helmet, chestplate, leggings, boots, armor_items, item("id
 Effects: effects, effect("speed"). Each has name, id, level, amplifier, time, duration, ticks, infinite, ambient, category, beneficial, harmful, color and icon.
 World: time, day, weather
 Game: fps (.average .median .p95 .p99 .consistency .live), ping, server, singleplayer, memory (.used .max .percent, in GB), entities (.rendered .total), cps (.left .right), combo, reach
-Functions: round, fixed, exact, floor, ceil, abs, sqrt, pow, min, max, clamp, signed, number, text, roman, duration, every, smooth, len, upper, lower, title, trim, plain, replace, truncate, pad_left, pad_right, repeat, contains, join, first, last, reverse, take, sort, where, range, switch, now, color, rgb, hsv, blend, gradient, rainbow, size"""
+Functions: round, fixed, exact, floor, ceil, abs, sqrt, pow, min, max, clamp, signed, number, text, roman, duration, every, smooth, len, upper, lower, title, trim, plain, replace, truncate, pad_left, pad_right, repeat, contains, join, first, last, reverse, take, sort, where, range, switch, now, color, rgb, hsv, blend, gradient, rainbow, size, bar"""
 }

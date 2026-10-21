@@ -39,7 +39,7 @@ Every value and function a script can use.
 | `.id` | Its id, like `minecraft:diamond_sword` |
 | `.count` | How many are in the stack |
 | `.durability`, `.max_durability`, `.damage` | Durability left, total and used. Missing for items that don't wear out |
-| `.icon` | The item as an icon |
+| `.icon` | The item as an icon. Show its durability bar with `{helmet.icon \| bar}` |
 
 `item("emerald")` is any item by id. Its `.count` is how many you carry in total, and it has `.name`, `.id` and `.icon` too.
 
@@ -103,4 +103,5 @@ Every value and function a script can use.
 | `now(pattern)` | The real time, like `now("HH:mm:ss")` |
 | `color`, `rgb`, `hsv`, `blend`, `gradient`, `rainbow` | [Colors](styling.md#colors) |
 | `size(n)` | [Text size](styling.md#sizes) |
+| `bar(icon)` | An item's durability bar on its [icon](styling.md#icons) |
 | `item(id)`, `effect(id)` | [Items](#items) and [effects](#potion-effects) |

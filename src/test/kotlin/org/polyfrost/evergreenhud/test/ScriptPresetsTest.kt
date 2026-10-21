@@ -29,7 +29,7 @@ class ScriptPresetsTest {
             "{set hp = health + absorption}\n&cHP &f{round(hp, 1)}",
             "{color(\"gold\")}{color(\"#FF8800\")}{color(255, 136, 0)}{gradient(health, 0, 20, \"red\", \"yellow\", \"green\")}" +
                 "{blend(\"red\", \"blue\", 0.5)}{rainbow()}{rainbow(2)}{size(1.5)}{size(0.75)}",
-            "{head} {head(2)} {held.icon} {helmet.icon} {item(\"emerald\").icon} {effect(\"speed\").icon}",
+            "{head} {head(2)} {held.icon} {helmet.icon} {item(\"emerald\").icon} {effect(\"speed\").icon} {helmet.icon(2) | bar} {held.icon | bar}",
             "&7X{tab} &f{block.x}\n&7Y{tab} &f{block.y}\n&7Z{tab} &f{block.z}\n{# a comment #}",
             "{reach | exact} {fixed(reach, 15)} {ping | every(2)} {fps | smooth} {speed | every(1) | smooth} {health | smooth} {memory | smooth} {cps.left | smooth}",
             "{for e in effects}{e.duration | every(5)}{end} {fps.live} {fps.average} {fps.median} {fps.p95} {fps.p99} {fps.consistency}",

@@ -240,6 +240,10 @@ class ScriptEngineTest {
         assertEquals("<Speed> Speed\n<Poison> Poison", render("{for e in effects}\n{e.icon} {e.name}\n{end}"))
         val icon = run("{size(2)}{head}").lines.single().single() as ScriptSegment.Icon
         assertEquals(2f, icon.size)
+        val barred = run("{head(2) | bar}").lines.single().single() as ScriptSegment.Icon
+        assertEquals(2f, barred.lines)
+        assertEquals(true, barred.bar)
+        assertEquals(false, icon.bar)
     }
 
     @Test

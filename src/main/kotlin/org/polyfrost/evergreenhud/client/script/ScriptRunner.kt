@@ -38,8 +38,8 @@ data class ScriptStyle(
 sealed interface ScriptSegment {
     data class Text(val text: String, val style: ScriptStyle) : ScriptSegment
 
-    /** [lines] is how many lines tall the icon is, [size] is the text size it was written at */
-    data class Icon(val source: IconSource, val lines: Float, val size: Float) : ScriptSegment
+    /** [lines] is how many lines tall the icon is, [size] is the text size it was written at, and [bar] shows an item's durability bar */
+    data class Icon(val source: IconSource, val lines: Float, val size: Float, val bar: Boolean = false) : ScriptSegment
 
     data object Column : ScriptSegment
 }
@@ -215,7 +215,7 @@ class ScriptLibrary(variables: Set<String>, functions: Map<String, ScriptFunctio
             return when (val target = eval(callee)) {
                 is Value.Icon -> {
                     if (expr.args.size != 1) fail("Icons take one size, like head(2)")
-                    Value.Icon(target.source, eval(expr.args[0]).asNumber("icon size").toFloat().coerceIn(MIN_SIZE, MAX_SIZE))
+                    target.copy(size = eval(expr.args[0]).asNumber("icon size").toFloat().coerceIn(MIN_SIZE, MAX_SIZE))
                 }
                 Value.Null -> Value.Null
                 else -> fail("${target.typeName.replaceFirstChar { it.uppercase() }} can't be called like a function")
@@ -388,7 +388,7 @@ private class OutputBuilder {
 
     fun icon(icon: Value.Icon) {
         flush()
-        line.segments.add(ScriptSegment.Icon(icon.source, icon.size, style.size))
+        line.segments.add(ScriptSegment.Icon(icon.source, icon.size, style.size, icon.bar))
     }
 
     fun column() {

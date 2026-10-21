@@ -22,6 +22,7 @@ import org.polyfrost.oneconfig.api.event.v1.events.TickEvent
 import org.polyfrost.oneconfig.api.event.v1.invoke.EventHandler
 import org.polyfrost.oneconfig.api.hud.v1.Hud
 import org.polyfrost.oneconfig.api.hud.v1.HudManager
+import org.polyfrost.oneconfig.api.platform.v1.Platform
 import org.polyfrost.oneconfig.utils.v1.MHUtils.setAccessible
 import org.slf4j.LoggerFactory
 
@@ -80,6 +81,7 @@ class ScriptHud : Hud(
 
     private var outputState = mutableStateOf(ScriptOutput.EMPTY)
     private var spacingState = mutableFloatStateOf(lineSpacing)
+    private var guiScaleState = mutableFloatStateOf(1f)
 
     private var tickHandler: EventHandler<*>? = null
 
@@ -135,6 +137,7 @@ class ScriptHud : Hud(
 
     override fun update(): Boolean {
         spacingState.floatValue = lineSpacing
+        guiScaleState.floatValue = Platform.compatibility().options().guiScale
         val editing = HudManager.isEditing || !isReal
         val next = evaluate(editing).let { if (editing && it.lines.isEmpty()) PLACEHOLDER else it }
         if (next == outputState.value) return false
@@ -182,7 +185,7 @@ class ScriptHud : Hud(
     }
 
     @Composable
-    override fun Content() = ScriptContent(outputState.value, spacingState.floatValue)
+    override fun Content() = ScriptContent(outputState.value, spacingState.floatValue, guiScaleState.floatValue)
 
     override fun clone(): Hud = (super.clone() as ScriptHud).also {
         it.compiled = null
@@ -192,6 +195,7 @@ class ScriptHud : Hud(
         it.memory = ScriptMemory()
         it.outputState = mutableStateOf(ScriptOutput.EMPTY)
         it.spacingState = mutableFloatStateOf(lineSpacing)
+        it.guiScaleState = mutableFloatStateOf(guiScaleState.floatValue)
         it.tickHandler = null
     }
 }
