@@ -1,0 +1,104 @@
+name: release
+
+# Push a tag like v3.9.11 to release that version. The tag has to match mod.version in
+# stonecutter.properties.toml, and CHANGELOG.md needs a "## 3.9.11" section for the release notes.
+# Every Minecraft version is built and attached to a draft release, which is only published once all of them succeed.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  TAG: ${{ github.ref_name }}
+
+jobs:
+  prepare:
+    name: Check version and draft the release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check the tag matches the mod version
+        run: |
+          version=$(sed -nE 's/^mod\.version *= *"([^"]+)".*/\1/p' stonecutter.properties.toml)
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Tag $TAG doesn't match mod.version $version. Tag v$version instead, or bump mod.version first."
+            exit 1
+          fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Take the release notes from the changelog
+        run: |
+          awk -v heading="## $VERSION" '
+            $0 == heading { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md has no \"## $VERSION\" section."
+            exit 1
+          fi
+          cat notes.md
+
+      - name: Draft the release
+        run: gh release create "$TAG" --draft --verify-tag --title "$VERSION" --notes-file notes.md
+
+  build:
+    name: "Build ${{ matrix.version }}"
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ["1.8.9", "1.21.1", "1.21.4", "1.21.5", "1.21.8", "1.21.10", "1.21.11", "26.1", "26.2", "26.3"]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: |
+            21
+            25
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      - run: chmod +x ./gradlew
+      - name: Build Stonecutter version
+        run: |
+          ./gradlew ":${{ matrix.version }}:build"
+
+      - name: Attach the mod jar to the release
+        run: |
+          mapfile -t jars < <(find "versions/${{ matrix.version }}/build/libs" -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' | sort)
+
+          if [ "${#jars[@]}" -ne 1 ]; then
+            printf 'Expected exactly one non-sources jar, found %s:\n' "${#jars[@]}"
+            printf '%s\n' "${jars[@]}"
+            exit 1
+          fi
+
+          gh release upload "$TAG" "${jars[0]}" --clobber
+
+  publish:
+    name: Publish the release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - run: gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest

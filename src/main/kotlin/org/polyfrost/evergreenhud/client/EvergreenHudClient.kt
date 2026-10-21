@@ -71,10 +71,6 @@ object EvergreenHudClient : ClientModInitializer {
         SaturationTracker.initialize()
         EffectIcons.initialize()
         CombatTracker.initialize()
-        //? if = 1.8.9 {
-        /*DevHudScreenshots.initialize()
-        DevDocShots.initialize()
-        *///?}
         GlobalConfig.preload()
 
         val huds = arrayOf(
