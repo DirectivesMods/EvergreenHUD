@@ -64,19 +64,25 @@ private val CARDINALS = arrayOf(Facing.NORTH, Facing.EAST, Facing.SOUTH, Facing.
 /** A picture, such as a player head or a potion effect icon */
 data class ImageIconSource(val image: Image) : IconSource
 
-/** An item as it looks in the inventory, compared by what it shows so an unchanged item doesn't redraw */
-class ItemIconSource private constructor(val stack: ItemStack?, val id: String, private val key: Any) : IconSource {
-    override fun equals(other: Any?): Boolean = other is ItemIconSource && other.key == key
+/**
+ * An item as it looks in the inventory, compared by the whole stack so an unchanged item doesn't redraw
+ * but an enchanted, renamed or dyed one does, even though its item, count and damage stay the same
+ */
+class ItemIconSource private constructor(val stack: ItemStack?, val id: String) : IconSource {
+    override fun equals(other: Any?): Boolean {
+        if (other !is ItemIconSource || other.id != id) return false
+        val mine = stack
+        val theirs = other.stack
+        return if (mine == null || theirs == null) mine === theirs else ItemStack.matches(mine, theirs)
+    }
 
-    override fun hashCode(): Int = key.hashCode()
+    override fun hashCode(): Int = id.hashCode()
 
     companion object {
-        fun of(stack: ItemStack): ItemIconSource {
-            val id = itemId(stack.item)
-            return ItemIconSource(stack, id, listOf(id, stack.count, stack.damageValue))
-        }
+        /** Snapshots [stack], since the game can change a stack in place and the snapshot is what gets compared and drawn */
+        fun of(stack: ItemStack) = ItemIconSource(stack.copy(), itemId(stack.item))
 
-        fun of(id: String) = ItemIconSource(null, id, id)
+        fun of(id: String) = ItemIconSource(null, id)
     }
 }
 
